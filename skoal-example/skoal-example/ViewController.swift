@@ -24,20 +24,36 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         initUI()
     }
     
+
+    ///-------------------------
+    /// Objective-C请求权限示例
+    ///-------------------------
+    //    [[skoal sharedInstance]requestHealthyPermissionWithBlock:^(HealthyStorePermissionResponse permissionResponse) {
+    //        if (permissionResponse == HealthyStorePermissionResponseError) {
+    //            DLog(@"请求权限失败");
+    //        }else{
+    //            DLog(@"请求权限成功");
+    //        }
+    //    }];
+    
+    //MARK:请求健康权限
     func requestPermission() {
         skoal.sharedInstance().requestHealthyPermission { (response:HealthyStorePermissionResponse) in
-            print(response)
+            if response == HealthyStorePermissionResponse.error {
+                print("请求失败")
+            } else {
+                print("请求成功")
+            }
         }
     }
-    
-    
-    
+            
     //MARK:UI
     func initUI() {
         _tableView = UITableView.init(frame:CGRect.init(x:0,y:0,width:self.view.frame.size.width,height:self.view.frame.size.height),style:UITableViewStyle.plain)
         _tableView.delegate = self
         _tableView.dataSource = self
         _tableView.showsVerticalScrollIndicator = false
+        _tableView.tableFooterView = UIView.init()
         self.view.addSubview(_tableView)
         _tableView.register(UITableViewCell().classForCoder, forCellReuseIdentifier: "cellId")
     }
