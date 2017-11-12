@@ -22,6 +22,8 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         initUI()
     }
     
+    
+    
     //MARK:UI
     func initUI() {
         _tableView = UITableView.init(frame:CGRect.init(x:0,y:0,width:self.view.frame.size.width,height:self.view.frame.size.height),style:UITableViewStyle.plain)
@@ -37,7 +39,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 8
+        return titleArray.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
         let cell = tableView.dequeueReusableCell(withIdentifier: "cellId", for: indexPath)
@@ -53,6 +55,9 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
+            var alert = UIAlertView(title: "2", message: "v", delegate: self, cancelButtonTitle: "y")
+            alert.alertViewStyle = UIAlertViewStyle.default
+            alert.show()
             print("")
         case 1:
             print("")
@@ -73,6 +78,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         }
         _tableView.reloadData()
     }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
