@@ -19,7 +19,15 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         
         self.view.backgroundColor = UIColor.white
         
+        requestPermission()
+        
         initUI()
+    }
+    
+    func requestPermission() {
+        skoal.sharedInstance().requestHealthyPermission { (response:HealthyStorePermissionResponse) in
+            print(response)
+        }
     }
     
     
