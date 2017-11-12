@@ -1,9 +1,9 @@
 //
 //  AppDelegate.swift
-//  skoal
+//  skoal-example
 //
 //  Created by BANYAN on 2017/11/12.
-//  Copyright © 2017年 GREENBANYAN. All rights reserved.
+//  Copyright © 2017年 skoal. All rights reserved.
 //
 
 import UIKit

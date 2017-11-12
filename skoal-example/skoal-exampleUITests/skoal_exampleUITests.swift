@@ -1,14 +1,14 @@
 //
-//  skoalUITests.swift
-//  skoalUITests
+//  skoal_exampleUITests.swift
+//  skoal-exampleUITests
 //
 //  Created by BANYAN on 2017/11/12.
-//  Copyright © 2017年 GREENBANYAN. All rights reserved.
+//  Copyright © 2017年 skoal. All rights reserved.
 //
 
 import XCTest
 
-class skoalUITests: XCTestCase {
+class skoal_exampleUITests: XCTestCase {
         
     override func setUp() {
         super.setUp()
