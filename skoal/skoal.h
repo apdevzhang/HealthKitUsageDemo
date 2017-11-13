@@ -49,11 +49,15 @@ typedef void (^HealthStorePermissionResponseBlock)(HealthStorePermissionResponse
 /**!
  * @brief 获取HealthyKit权限
  */
+<<<<<<< HEAD
 -(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block;
 
 /**!
  * @brief 读取身高
  */
 -(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion;
+=======
+-(void)requestHealthyPermissionWithCallback:(HealthyStorePermissionResponseBlock)block;
+>>>>>>> e2c3e5f62944f4ddc4334ce63adf3dfbe2a593b4
 
 @end

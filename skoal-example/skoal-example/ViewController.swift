@@ -28,8 +28,13 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     ///-------------------------
     /// Objective-C请求权限示例
     ///-------------------------
+<<<<<<< HEAD
     //    [[skoal sharedInstance]requestHealthPermissionWithBlock:^(HealthStorePermissionResponse permissionResponse) {
     //        if (permissionResponse == HealthStorePermissionResponseError) {
+=======
+    //    [[skoal sharedInstance]requestHealthyPermissionWithCallback:^(HealthyStorePermissionResponse permissionResponse) {
+    //        if (permissionResponse == HealthyStorePermissionResponseError) {
+>>>>>>> e2c3e5f62944f4ddc4334ce63adf3dfbe2a593b4
     //            DLog(@"请求权限失败");
     //        }else{
     //            DLog(@"请求权限成功");

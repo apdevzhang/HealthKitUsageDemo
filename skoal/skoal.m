@@ -45,7 +45,11 @@ static skoal *_instance = nil;
 }
 
 #pragma mark - 获取HealthyKit权限
+<<<<<<< HEAD
 -(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block
+=======
+-(void)requestHealthyPermissionWithCallback:(HealthyStorePermissionResponseBlock)block
+>>>>>>> e2c3e5f62944f4ddc4334ce63adf3dfbe2a593b4
 {
     if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 8.0) {
         if (![HKHealthStore isHealthDataAvailable]) {
