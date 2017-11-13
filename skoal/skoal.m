@@ -45,7 +45,7 @@ static skoal *_instance = nil;
 }
 
 #pragma mark - 获取HealthyKit权限
--(void)requestHealthyPermissionWithBlock:(HealthyStorePermissionResponseBlock)block
+-(void)requestHealthyPermissionWithCallback:(HealthyStorePermissionResponseBlock)block
 {
     if (![HKHealthStore isHealthDataAvailable]) {
         DLog(@"HealthyKit:该设备不支持HealthyKit");
