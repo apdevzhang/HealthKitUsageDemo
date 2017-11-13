@@ -33,22 +33,27 @@
 #define DLog(FORMAT, ...) nil
 #endif
 
-typedef NS_ENUM(NSUInteger,HealthyStorePermissionResponse) {
-    HealthyStorePermissionResponseError = 0,
-    HealthyStorePermissionResponseSuccess
+typedef NS_ENUM(NSUInteger,HealthStorePermissionResponse) {
+    HealthStorePermissionResponseError = 0,
+    HealthStorePermissionResponseSuccess
 };
 
-typedef void (^HealthyStorePermissionResponseBlock)(HealthyStorePermissionResponse permissionResponse);
+typedef void (^HealthStorePermissionResponseBlock)(HealthStorePermissionResponse permissionResponse);
 
 @interface skoal : NSObject
 
 +(instancetype)sharedInstance;
 
-@property (nonatomic,copy) HealthyStorePermissionResponseBlock permissionResponseBlock;
+@property (nonatomic,copy) HealthStorePermissionResponseBlock permissionResponseBlock;
 
 /**!
  * @brief 获取HealthyKit权限
  */
--(void)requestHealthyPermissionWithBlock:(HealthyStorePermissionResponseBlock)block;
+-(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block;
+
+/**!
+ * @brief 读取身高
+ */
+-(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion;
 
 @end

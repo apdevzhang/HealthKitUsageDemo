@@ -45,23 +45,188 @@ static skoal *_instance = nil;
 }
 
 #pragma mark - 获取HealthyKit权限
--(void)requestHealthyPermissionWithBlock:(HealthyStorePermissionResponseBlock)block
+-(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block
 {
-    if (![HKHealthStore isHealthDataAvailable]) {
-        DLog(@"HealthyKit:该设备不支持HealthyKit");
+    if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 8.0) {
+        if (![HKHealthStore isHealthDataAvailable]) {
+            DLog(@"skoal->该设备不支持HealthKit");
+        }else{
+            HKHealthStore *store = [[HKHealthStore alloc] init];
+            NSSet *readObjectTypes = [self readObjectTypes];
+            NSSet *writeObjectTypes = [self writeObjectTypes];
+            [store requestAuthorizationToShareTypes:writeObjectTypes readTypes:readObjectTypes completion:^(BOOL success, NSError * _Nullable error) {
+                if (success == YES) {
+                    block(HealthStorePermissionResponseSuccess);
+                }else{
+                    block(HealthStorePermissionResponseError);
+                }
+            }];
+        }
     }else{
-        HKHealthStore *store = [[HKHealthStore alloc] init];
-        NSSet *readObjectTypes = [NSSet setWithObjects:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
-                                  [HKObjectType quantityTypeForIdentifier:
-                                   HKQuantityTypeIdentifierDistanceWalkingRunning],[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex],[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRate],nil];
-        [store requestAuthorizationToShareTypes:nil readTypes:readObjectTypes completion:^(BOOL success, NSError * _Nullable error) {
-            if (success == YES) {
-                block(HealthyStorePermissionResponseSuccess);
-            }else{
-                block(HealthyStorePermissionResponseError);
-            }
-        }];
+        DLog(@"skoal->HealthyKit暂不支持iOS8以下系统,请更新你的系统。")
     }
+}
+
+-(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion
+{
+    HKQuantityType *heightType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    
+    ///----
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDate *dateNow = [NSDate date];
+    NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:dateNow];
+    [components setHour:0];
+    [components setMinute:0];
+    [components setSecond:0];
+    NSDate *startDate = [calendar dateFromComponents:components];
+    NSDate *endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
+    //;
+    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:false];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:heightType predicate:predicate limit:1 sortDescriptors:@[sortDescriptor] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        HKQuantitySample *sample = results.firstObject;
+        if (completion) {
+            double value = [sample.quantity doubleValueForUnit:unit];
+            completion(value,error);
+        }
+    }];
+    HKHealthStore *store = [[HKHealthStore alloc] init];
+    [store executeQuery:query];
+}
+
+
+#pragma mark - 读权限集合
+-(NSSet *)readObjectTypes
+{
+    //身高
+    HKQuantityType *Height = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    
+    //体重
+    HKQuantityType *BodyMass = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];
+    
+    //身体质量指数
+    HKQuantityType *BodyMassIndex= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];
+    
+    //步数
+    HKQuantityType *StepCount = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    
+    //步行 + 跑步距离
+    HKQuantityType *DistanceWalkingRunning= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    
+    //已爬楼层
+    HKObjectType *FlightsClimbed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];
+    
+    //呼吸速率
+    HKQuantityType *RespiratoryRate = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    
+    //膳食能量消耗
+    HKQuantityType *DietaryEnergyConsumed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryEnergyConsumed];
+    
+    //血氧饱和度
+    HKQuantityType *OxygenSaturation = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierOxygenSaturation];
+    
+    //体温
+    HKQuantityType *BodyTemperature = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    
+    //血糖
+    HKQuantityType *BloodGlucose = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodGlucose];
+    
+    //血压收缩压
+    HKQuantityType *BloodPressureSystolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureSystolic];
+    
+    //血压舒张压
+    HKQuantityType *BloodPressureDiastolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureDiastolic];
+    
+    //站立小时
+    HKObjectType *StandHour = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierAppleStandHour];
+    
+    //健身记录
+    HKObjectType *ActivitySummary = [HKObjectType activitySummaryType];
+    
+    //性别
+    HKObjectType *BiologicalSex = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierBiologicalSex];
+    
+    //出生日期
+    HKObjectType *DateOfBirth = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierDateOfBirth];
+    
+    //血型
+    HKObjectType *BloodType = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierBloodType];
+
+    //日光反应型皮肤类型
+    HKObjectType *FitzpatrickSkin = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierFitzpatrickSkinType];
+    
+    //睡眠分析
+    HKObjectType *SleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    
+    //月经
+    HKObjectType *MenstrualFlow = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierMenstrualFlow];
+
+    //点滴出血
+    HKObjectType *IntermenstrualBleeding = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierIntermenstrualBleeding];
+    
+    //性行为
+    HKObjectType *SexualActivity = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSexualActivity];
+
+    return [NSSet setWithObjects:Height,BodyMass,BodyMassIndex,StepCount,DistanceWalkingRunning,FlightsClimbed,RespiratoryRate,DietaryEnergyConsumed,OxygenSaturation,BodyTemperature,BloodGlucose,BloodPressureSystolic,BloodPressureDiastolic,StandHour,ActivitySummary,BiologicalSex,DateOfBirth,BloodType,FitzpatrickSkin,SleepAnalysis,MenstrualFlow,IntermenstrualBleeding,SexualActivity, nil];
+}
+
+#pragma mark - 写权限集合
+-(NSSet *)writeObjectTypes
+{
+    //身高
+    HKQuantityType *Height = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    
+    //体重
+    HKQuantityType *BodyMass = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];
+    
+    //身体质量指数
+    HKQuantityType *BodyMassIndex= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];
+    
+    //步数
+    HKQuantityType *StepCount = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    
+    //步行 + 跑步距离
+    HKQuantityType *DistanceWalkingRunning= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    
+    //已爬楼层
+    HKObjectType *FlightsClimbed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];
+    
+    //呼吸速率
+    HKQuantityType *RespiratoryRate = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    
+    //膳食能量消耗
+    HKQuantityType *DietaryEnergyConsumed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryEnergyConsumed];
+    
+    //血氧饱和度
+    HKQuantityType *OxygenSaturation = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierOxygenSaturation];
+    
+    //体温
+    HKQuantityType *BodyTemperature = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    
+    //血糖
+    HKQuantityType *BloodGlucose = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodGlucose];
+    
+    //血压收缩压
+    HKQuantityType *BloodPressureSystolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureSystolic];
+    
+    //血压舒张压
+    HKQuantityType *BloodPressureDiastolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureDiastolic];
+    
+    //睡眠分析
+    HKObjectType *SleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    
+    //月经
+    HKObjectType *MenstrualFlow = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierMenstrualFlow];
+    
+    //点滴出血
+    HKObjectType *IntermenstrualBleeding = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierIntermenstrualBleeding];
+    
+    //性行为
+    HKObjectType *SexualActivity = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSexualActivity];
+    
+    return [NSSet setWithObjects:Height,BodyMass,BodyMassIndex,StepCount,DistanceWalkingRunning,FlightsClimbed,RespiratoryRate,DietaryEnergyConsumed,OxygenSaturation,BodyTemperature,BloodGlucose,BloodPressureSystolic,BloodPressureDiastolic,SleepAnalysis,MenstrualFlow,IntermenstrualBleeding,SexualActivity, nil];
 }
 
 @end

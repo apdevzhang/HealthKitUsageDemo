@@ -28,8 +28,8 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     ///-------------------------
     /// Objective-C请求权限示例
     ///-------------------------
-    //    [[skoal sharedInstance]requestHealthyPermissionWithBlock:^(HealthyStorePermissionResponse permissionResponse) {
-    //        if (permissionResponse == HealthyStorePermissionResponseError) {
+    //    [[skoal sharedInstance]requestHealthPermissionWithBlock:^(HealthStorePermissionResponse permissionResponse) {
+    //        if (permissionResponse == HealthStorePermissionResponseError) {
     //            DLog(@"请求权限失败");
     //        }else{
     //            DLog(@"请求权限成功");
@@ -38,13 +38,13 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     //MARK:请求健康权限
     func requestPermission() {
-        skoal.sharedInstance().requestHealthyPermission { (response:HealthyStorePermissionResponse) in
-            if response == HealthyStorePermissionResponse.error {
+        skoal.sharedInstance().requestHealthPermission { (response: HealthStorePermissionResponse) in
+            if response == HealthStorePermissionResponse.error {
                 print("请求失败")
             } else {
                 print("请求成功")
             }
-        }
+        }        
     }
             
     //MARK:UI
@@ -79,10 +79,9 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
-            var alert = UIAlertView(title: "2", message: "v", delegate: self, cancelButtonTitle: "y")
-            alert.alertViewStyle = UIAlertViewStyle.default
-            alert.show()
-            print("")
+//            var alert = UIAlertView(title: "2", message: "v", delegate: self, cancelButtonTitle: "y")
+//            alert.alertViewStyle = UIAlertViewStyle.default
+//            alert.show()
         case 1:
             print("")
         case 2:
