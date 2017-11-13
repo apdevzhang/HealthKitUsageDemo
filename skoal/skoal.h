@@ -49,6 +49,6 @@ typedef void (^HealthyStorePermissionResponseBlock)(HealthyStorePermissionRespon
 /**!
  * @brief 获取HealthyKit权限
  */
--(void)requestHealthyPermissionWithBlock:(HealthyStorePermissionResponseBlock)block;
+-(void)requestHealthyPermissionWithCallback:(HealthyStorePermissionResponseBlock)block;
 
 @end
