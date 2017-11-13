@@ -28,18 +28,13 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     ///-------------------------
     /// Objective-C请求权限示例
     ///-------------------------
-<<<<<<< HEAD
-    //    [[skoal sharedInstance]requestHealthPermissionWithBlock:^(HealthStorePermissionResponse permissionResponse) {
-    //        if (permissionResponse == HealthStorePermissionResponseError) {
-=======
-    //    [[skoal sharedInstance]requestHealthyPermissionWithCallback:^(HealthyStorePermissionResponse permissionResponse) {
-    //        if (permissionResponse == HealthyStorePermissionResponseError) {
->>>>>>> e2c3e5f62944f4ddc4334ce63adf3dfbe2a593b4
-    //            DLog(@"请求权限失败");
-    //        }else{
-    //            DLog(@"请求权限成功");
-    //        }
-    //    }];
+//        [[skoal sharedInstance]requestHealthPermissionWithBlock:^(HealthStorePermissionResponse permissionResponse) {
+//            if (permissionResponse == HealthStorePermissionResponseError) {
+//                DLog(@"请求权限失败");
+//            }else{
+//                DLog(@"请求权限成功");
+//            }
+//        }];
     
     //MARK:请求健康权限
     func requestPermission() {
@@ -87,6 +82,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 //            var alert = UIAlertView(title: "2", message: "v", delegate: self, cancelButtonTitle: "y")
 //            alert.alertViewStyle = UIAlertViewStyle.default
 //            alert.show()
+            print("")
         case 1:
             print("")
         case 2:
