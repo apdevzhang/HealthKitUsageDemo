@@ -467,10 +467,10 @@
 				CODE_SIGN_ENTITLEMENTS = "skoal-example/skoal-example.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 49BQNS38WU;
+				DEVELOPMENT_TEAM = X7K8D3B6VQ;
 				INFOPLIST_FILE = "skoal-example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.BANYAN.skoal-example";
+				PRODUCT_BUNDLE_IDENTIFIER = "BANYAN.skoal-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "skoal-example/skoal-example-Bridging-Header.h";
@@ -488,10 +488,10 @@
 				CODE_SIGN_ENTITLEMENTS = "skoal-example/skoal-example.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 49BQNS38WU;
+				DEVELOPMENT_TEAM = X7K8D3B6VQ;
 				INFOPLIST_FILE = "skoal-example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.BANYAN.skoal-example";
+				PRODUCT_BUNDLE_IDENTIFIER = "BANYAN.skoal-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "skoal-example/skoal-example-Bridging-Header.h";

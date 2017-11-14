@@ -47,10 +47,10 @@ typedef void (^HealthStorePermissionResponseBlock)(HealthStorePermissionResponse
 @property (nonatomic,copy) HealthStorePermissionResponseBlock permissionResponseBlock;
 
 @property (nonatomic,strong) HKHealthStore *store;
+
 /**!
  * @brief 获取HealthyKit权限
  */
-
 -(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block;
 
 /**!
@@ -58,6 +58,6 @@ typedef void (^HealthStorePermissionResponseBlock)(HealthStorePermissionResponse
  */
 //-(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion;
 -(void)readHeightFromHealthStoreWith;
-
+-(void)readHeightFromHealthStoreSourceiPhone;
 
 @end

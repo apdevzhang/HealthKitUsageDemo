@@ -83,7 +83,8 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 //            alert.alertViewStyle = UIAlertViewStyle.default
 //            alert.show()
 //            print("")
-            skoal.sharedInstance().readHeightFromHealthStoreWith()
+//            skoal.sharedInstance().readHeightFromHealthStoreWith()
+            skoal.sharedInstance().readHeightFromHealthStoreSourceiPhone()
         case 1:
             print("")
         case 2:
