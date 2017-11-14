@@ -40,8 +40,15 @@ static skoal *_instance = nil;
     });
     return _instance;
 }
-+(id)copyWithZone:(nullable NSZone *)zone{
++(instancetype)copyWithZone:(nullable NSZone *)zone{
     return _instance;
+}
+
+-(instancetype)init{
+    if (self = [super init]) {
+        self.store = [[HKHealthStore alloc] init];
+    }
+    return self;
 }
 
 #pragma mark - 获取HealthyKit权限
@@ -67,11 +74,73 @@ static skoal *_instance = nil;
     }
 }
 
--(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion
+//-(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion
+-(void)readHeightFromHealthStoreWith
 {
-    HKQuantityType *heightType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+//    HKQuantityType *heightType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+
+//    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+//
+//    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:false];
+//
+//    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:heightType predicate:predicate limit:1 sortDescriptors:@[sortDescriptor] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+//        HKQuantitySample *sample = results.firstObject;
+//        if (completion) {
+//            double value = [sample.quantity doubleValueForUnit:unit];
+//            completion(value,error);
+//        }
+//    }];
+//    HKHealthStore *store = [[HKHealthStore alloc] init];
+//    [store executeQuery:query];
     
-    ///----
+
+    HKSampleType *stepCountType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+
+    NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+
+    ///--------时间段为当天
+        NSCalendar *calendar = [NSCalendar currentCalendar];
+        NSDate *dateNow = [NSDate date];
+        NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:dateNow];
+        [components setHour:0];
+        [components setMinute:0];
+        [components setSecond:0];
+        NSDate *startDate = [calendar dateFromComponents:components];
+        NSDate *endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
+    //;
+    
+    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:(HKQueryOptionNone)];
+
+    
+    HKSampleQuery *sampleQuery = [[HKSampleQuery alloc]initWithSampleType:stepCountType predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        DLog(@"%@",results);
+
+        NSInteger stepCount1 = 0;
+        for (NSInteger i = 0; i < results.count; i ++) {
+            HKQuantitySample *result = results[i];
+            HKQuantity *quantity = result.quantity;
+            
+            NSInteger solitary = [[[NSString stringWithFormat:@"%@",quantity] componentsSeparatedByString:@" "][0] integerValue];
+            //把一天中所有时间段中的步数加到一起
+            stepCount1 += solitary;
+        }
+        
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            DLog(@"%ld",stepCount1);
+        }];
+        
+    }];
+    
+    //执行查询
+    [self.store executeQuery:sampleQuery];
+    
+}
+
+#pragma mark - 查询一整天的数据
++(NSPredicate *)predicateSampleWithAllDay
+{
+    ///--------时间段为当天
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDate *dateNow = [NSDate date];
     NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:dateNow];
@@ -81,21 +150,25 @@ static skoal *_instance = nil;
     NSDate *startDate = [calendar dateFromComponents:components];
     NSDate *endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
     //;
-    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:false];
-    
-    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:heightType predicate:predicate limit:1 sortDescriptors:@[sortDescriptor] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
-        HKQuantitySample *sample = results.firstObject;
-        if (completion) {
-            double value = [sample.quantity doubleValueForUnit:unit];
-            completion(value,error);
-        }
-    }];
-    HKHealthStore *store = [[HKHealthStore alloc] init];
-    [store executeQuery:query];
+    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:(HKQueryOptionNone)];
+    return predicate;
 }
-
+#pragma mark - 查询一个时间段
+-(void)temp
+{
+    ///--------时间段为当天
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDate *dateNow = [NSDate date];
+    NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:dateNow];
+    [components setHour:0];
+    [components setMinute:0];
+    [components setSecond:0];
+    NSDate *startDate = [calendar dateFromComponents:components];
+    NSDateComponents *component = [calendar components:NSCalendarUnitHour|NSCalendarUnitMinute fromDate:dateNow];
+    //    DLog(@"%@\n%@",startDate,endDate); //2017-11-13 16:00:00 +0000 2017-11-14 16:00:00 +0000
+    //;
+}
 
 #pragma mark - 读权限集合
 -(NSSet *)readObjectTypes

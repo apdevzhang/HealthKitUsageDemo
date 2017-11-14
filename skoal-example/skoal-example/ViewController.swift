@@ -82,7 +82,8 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 //            var alert = UIAlertView(title: "2", message: "v", delegate: self, cancelButtonTitle: "y")
 //            alert.alertViewStyle = UIAlertViewStyle.default
 //            alert.show()
-            print("")
+//            print("")
+            skoal.sharedInstance().readHeightFromHealthStoreWith()
         case 1:
             print("")
         case 2:
