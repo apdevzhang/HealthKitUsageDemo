@@ -16,6 +16,7 @@
 		233FC9AA1FB85E99008F42E7 /* skoal_exampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233FC9A91FB85E99008F42E7 /* skoal_exampleUITests.swift */; };
 		233FC9BE1FB85ECD008F42E7 /* skoal.m in Sources */ = {isa = PBXBuildFile; fileRef = 233FC9BD1FB85ECD008F42E7 /* skoal.m */; };
 		233FC9C21FB88E41008F42E7 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233FC9C11FB88E41008F42E7 /* HealthKit.framework */; };
+		23ACFCAF1FBC316D007243F7 /* ViewController1.m in Sources */ = {isa = PBXBuildFile; fileRef = 23ACFCAE1FBC316D007243F7 /* ViewController1.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,8 @@
 		233FC9BD1FB85ECD008F42E7 /* skoal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = skoal.m; sourceTree = "<group>"; };
 		233FC9BF1FB88E41008F42E7 /* skoal-example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "skoal-example.entitlements"; sourceTree = "<group>"; };
 		233FC9C11FB88E41008F42E7 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		23ACFCAD1FBC316D007243F7 /* ViewController1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController1.h; sourceTree = "<group>"; };
+		23ACFCAE1FBC316D007243F7 /* ViewController1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController1.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 				233FC9BF1FB88E41008F42E7 /* skoal-example.entitlements */,
 				233FC9891FB85E99008F42E7 /* AppDelegate.swift */,
 				233FC98B1FB85E99008F42E7 /* ViewController.swift */,
+				23ACFCAD1FBC316D007243F7 /* ViewController1.h */,
+				23ACFCAE1FBC316D007243F7 /* ViewController1.m */,
 				233FC98D1FB85E99008F42E7 /* Main.storyboard */,
 				233FC9901FB85E99008F42E7 /* Assets.xcassets */,
 				233FC9921FB85E99008F42E7 /* LaunchScreen.storyboard */,
@@ -295,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23ACFCAF1FBC316D007243F7 /* ViewController1.m in Sources */,
 				233FC9BE1FB85ECD008F42E7 /* skoal.m in Sources */,
 				233FC98C1FB85E99008F42E7 /* ViewController.swift in Sources */,
 				233FC98A1FB85E99008F42E7 /* AppDelegate.swift in Sources */,
@@ -467,10 +473,10 @@
 				CODE_SIGN_ENTITLEMENTS = "skoal-example/skoal-example.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = X7K8D3B6VQ;
+				DEVELOPMENT_TEAM = 49BQNS38WU;
 				INFOPLIST_FILE = "skoal-example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "BANYAN.skoal-example";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.BANYAN.skoal-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "skoal-example/skoal-example-Bridging-Header.h";
@@ -488,10 +494,10 @@
 				CODE_SIGN_ENTITLEMENTS = "skoal-example/skoal-example.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = X7K8D3B6VQ;
+				DEVELOPMENT_TEAM = 49BQNS38WU;
 				INFOPLIST_FILE = "skoal-example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "BANYAN.skoal-example";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.BANYAN.skoal-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "skoal-example/skoal-example-Bridging-Header.h";

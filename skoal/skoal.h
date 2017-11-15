@@ -48,16 +48,97 @@ typedef void (^HealthStorePermissionResponseBlock)(HealthStorePermissionResponse
 
 @property (nonatomic,strong) HKHealthStore *store;
 
+///-------------------------
+#pragma mark - 获取权限
+///-------------------------
 /**!
- * @brief 获取HealthyKit权限
+ * @brief 获取权限
  */
 -(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block;
 
+///-------------------------
+#pragma mark - 步数
+///-------------------------
 /**!
- * @brief 读取身高
+ * @brief 读取当天步数
  */
-//-(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion;
--(void)readHeightFromHealthStoreWith;
--(void)readHeightFromHealthStoreSourceiPhone;
+-(void)readStepCountFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
+/**!
+ * @brief 读取一个时间段步数
+ */
+-(void)readStepCountFromHealthStoreWithStartTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(double value,NSError *error))completion;
+
+/**!
+ * @brief 写入当天步数
+ */
+-(void)writeStepCountToHealthStoreWithStepCount:(double)setpCount completion:(void(^)(BOOL response))completion;
+
+/**!
+ * @brief 写入指定时间段步数
+ */
+-(void)writeStepCountToHealthStoreWithStepCount:(double)setpCount startTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - 身高
+///-------------------------
+/**!
+ * @brief 读取身高(cm)
+ */
+-(void)readHeightFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+/**!
+ * @brief 写入身高(cm)
+ */
+-(void)writeHeightToHealthStoreWithHeight:(double)Height completion:(void(^)(BOOL response))completion;
+
+///-------------------------
+#pragma mark - 体重
+///-------------------------
+/**!
+ * @brief 读取体重(KG)
+ */
+-(void)readBodyMassFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+/**!
+ * @brief 写入体重(KG)
+ */
+-(void)writeBodyMassToHealthStoreWithBodyMass:(double)bodyMass completion:(void(^)(BOOL response))completion;
+
+///-------------------------
+#pragma mark - 身体质量指数
+///-------------------------
+/**!
+ * @brief 读取身体质量指数
+ */
+-(void)readBodyMassIndexFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+/**!
+ * @brief 写入身体质量指数
+ */
+-(void)writeBodyMassIndexToHealthStoreWithBodyMassIndex:(double)bodyMassIndex completion:(void(^)(BOOL response))completion;
+
+///-------------------------
+#pragma mark - 步行&跑步距离
+///-------------------------
+/**!
+ * @brief 读取步行&跑步距离(KM)
+ */
+-(void)readDistanceWalkingRunningFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+/**!
+ * @brief 写入步行&跑步距离(KM)
+ */
+-(void)writeDistanceWalkingRunningToHealthStoreWithBodyMassIndex:(double)distanceWalkingRunning completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - 以爬楼层
+///-------------------------
+/**!
+ * @brief 读取以爬楼层
+ */
+-(void)readFlightsClimbedFromHealthStoreWithCompletion:(void(^)(NSInteger value,NSError *error))completion;
+/**!
+ * @brief 写入以爬楼层
+ */
+-(void)writeFlightsClimbedToHealthStoreWithBodyMassIndex:(NSInteger)flightsClimbed completion:(void(^)(BOOL response))completion;
 
 @end

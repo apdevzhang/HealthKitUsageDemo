@@ -8,9 +8,10 @@
 
 import UIKit
 
+
 class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
     
-    let titleArray: [String] = ["2","3","4"]
+    let titleArray: [String] = ["2","3","4","写入步数","写入身高"]
     
     var _tableView: UITableView!
     
@@ -82,16 +83,72 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 //            var alert = UIAlertView(title: "2", message: "v", delegate: self, cancelButtonTitle: "y")
 //            alert.alertViewStyle = UIAlertViewStyle.default
 //            alert.show()
-//            print("")
-//            skoal.sharedInstance().readHeightFromHealthStoreWith()
-            skoal.sharedInstance().readHeightFromHealthStoreSourceiPhone()
-        case 1:
+            
+            skoal.sharedInstance().readFlightsClimbedFromHealthStore(completion: { (_ value: NSInteger, error: Error?) in
+                print(value)
+            })
+            
+            print("")
+            
+//            skoal.sharedInstance().writeBodyMassIndexToHealthStore(withBodyMassIndex: 12.3, completion: { (_ response: Bool) in
+//                print(response)
+//            })
+            
+            //读取步行&跑步距离
+//            skoal.sharedInstance().readDistanceWalkingRunningFromHealthStore(completion: { (_ value: Double, error: Error?) in
+//                print(value)
+//            })
+            
+//            skoal.sharedInstance().readBodyMassFromHealthStore(completion: { (_ value: Double, error: Error?) in
+//                print(value)
+//            })
+            
+//            skoal.sharedInstance().readStepCountFromHealthStore(completion: { (_ response: Double, _ error: Error?) in
+//                print(response)
+//            })
+            
+        case 1:            
+//            skoal.sharedInstance().readStepCountFromHealthStore(withStartDateString: "2017-11-15 08:00", endDateString: "2017-11-15 09:00", completion: { (_ response: Double, _ error: Error?) in
+//                print(response)
+//            })
+            
+//            skoal.sharedInstance().writeBodyMassToHealthStore(withBodyMass: 180, completion: { (_ response: Bool) in
+//                print(response)
+//            })
+            
+//            skoal.sharedInstance().writeBodyMassToHealthStore(withBodyMass: 180, completion: { (_ response: Bool) in
+//                print(response)
+//            })
+            
+            ////写入读取步行&跑步距离
+//            skoal.sharedInstance().writeDistanceWalkingRunningToHealthStore(withBodyMassIndex: 23.4, completion: { (_ response: Bool) in
+//                print(response)
+//            })
+            
             print("")
         case 2:
+            
+//            skoal.sharedInstance().readHeightFromHealthStore(completion: { (_ response: Double, _ error: Error?) in
+//                print(response)
+//                print(String(error.debugDescription))
+//            })
+            
             print("")
         case 3:
+            
+//            skoal.sharedInstance().writeStepCountToHealthStore(withStepCount: 200.0, completion: { (_ response: Bool) -> Void in
+//                print(response)
+//            })
+            
+//            skoal.sharedInstance().writeStepCountToHealthStore(withStepCount: 9999.0, startTime: "2017-11-14 08:00", endTime: "2017-11-14 09:00", completion: { (_ response: Bool) in
+//                print(response)
+//            })
+            
             print("")
         case 4:
+            skoal.sharedInstance().writeHeightToHealthStore(withHeight: 1.3, completion: { (_ response: Bool) in
+                print(response)
+            })
             print("")
         case 5:
             print("")

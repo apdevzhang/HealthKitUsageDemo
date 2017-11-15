@@ -51,7 +51,9 @@ static skoal *_instance = nil;
     return self;
 }
 
-#pragma mark - 获取HealthyKit权限
+///-------------------------
+#pragma mark - 获取权限
+///-------------------------
 -(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block
 {
     if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 8.0) {
@@ -74,71 +76,287 @@ static skoal *_instance = nil;
     }
 }
 
-#warning xxx
-//HKSampleQuery
-//HKStatisticsQuery
-
-//-(void)readHeightFromHealthStoreWithUnit:(HKUnit *)unit withCompletion:(void(^)(double value,NSError *error))completion
--(void)readHeightFromHealthStoreWith
+///-------------------------
+#pragma mark - 步数
+///-------------------------
+-(void)readStepCountFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion   ///读取当天步数
 {
     HKSampleType *stepCountType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-
+    
     NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
     NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
-
-    NSPredicate *predicate = [self predicateSampleTypeByWholeDay]; //查询全天数据
     
-    //查询固定时间段
-//    NSPredicate *predicate = [self predicateSampleWithStartDate:@"2017-11-14 20:00" endDate:@"2017-11-14 21:00"];
+    NSPredicate *predicate = [self predicateSampleByToday];
     
-    HKSampleQuery *sampleQuery = [[HKSampleQuery alloc]initWithSampleType:stepCountType predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
-        DLog(@"%@",results);
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:stepCountType predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
         
-
-        NSInteger stepCount1 = 0;
-        for (NSInteger i = 0; i < results.count; i ++) {
-            HKQuantitySample *result = results[i];
-            HKQuantity *quantity = result.quantity;
-            
-            NSInteger solitary = [[[NSString stringWithFormat:@"%@",quantity] componentsSeparatedByString:@" "][0] integerValue];
-            //把一天中所有时间段中的步数加到一起
-            stepCount1 += solitary;
+        double sum = 0;
+        for (HKQuantitySample *sample in results) {
+            sum += [[[NSString stringWithFormat:@"%@",sample.quantity] componentsSeparatedByString:@" "][0] doubleValue];
         }
         
-        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            DLog(@"%ld",stepCount1);
-        }];
-        
+        completion(sum,error);
     }];
     
-    //执行查询
-    [self.store executeQuery:sampleQuery];
+    [self.store executeQuery:query];
 }
-
--(void)readHeightFromHealthStoreSourceiPhone
+-(void)readStepCountFromHealthStoreWithStartTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(double value,NSError *error))completion   ///读取一个时间段步数
 {
     HKSampleType *stepCountType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
     
     NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
     NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
     
-    NSPredicate *predicate = [self predicateSampleTypeByWholeDay]; //查询全天数据
+    NSPredicate *predicate = [self predicateSampleByPeriodOfTimeWithStartTime:startTime endTime:endTime];
     
-//    HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:predicate options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
-////        HKQuantity *sum = [result sumQuantity];
-//        HKQuantity *sum = [result sumQuantityForSource:[HKSource defaultSource]];
-////        HKQuantity *sum = [result ]
-//        DLog(@"%@",sum);
-//    }];
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:stepCountType predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        
+        double sum = 0;
+        for (HKQuantitySample *sample in results) {
+            sum += [[[NSString stringWithFormat:@"%@",sample.quantity] componentsSeparatedByString:@" "][0] doubleValue];
+        }
+        
+        completion(sum,error);
+    }];
     
-//    HKStatisticsQuery *query = [HKStatisticsQuery alloc] initWithQuantityType:<#(nonnull HKQuantityType *)#> quantitySamplePredicate:<#(nullable NSPredicate *)#> options:<#(HKStatisticsOptions)#> completionHandler:<#^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error)handler#>
-//
-//    //执行查询
-//    [self.store executeQuery:query];
+    [self.store executeQuery:query];
+}
+-(void)writeStepCountToHealthStoreWithStepCount:(double)setpCount completion:(void(^)(BOOL response))completion     ///写入当天步数
+{
+    HKQuantityType *type = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+
+    HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit countUnit] doubleValue:setpCount];
+   
+    HKQuantitySample *sample = [HKQuantitySample quantitySampleWithType:type quantity:quantity startDate:[NSDate date] endDate:[NSDate date] metadata:nil];
+    
+    [self.store saveObject:sample withCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            completion(YES);
+        }else {
+            completion(NO);
+        }
+    }];
+}
+-(void)writeStepCountToHealthStoreWithStepCount:(double)setpCount startTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(BOOL response))completion     ///写入指定时间段步数
+{
+    HKQuantityType *type = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    
+    HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit countUnit] doubleValue:setpCount];
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd HH:mm"];
+    formatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
+    
+    NSDate *newStartDate = [formatter dateFromString:startTime];
+    NSDate *newEndDate = [formatter dateFromString:endTime];
+    
+    HKQuantitySample *sample = [HKQuantitySample quantitySampleWithType:type quantity:quantity startDate:newStartDate endDate:newEndDate metadata:nil];
+    
+    [self.store saveObject:sample withCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            completion(YES);
+        }else {
+            completion(NO);
+        }
+    }];
 }
 
-#pragma mark - 查询一整天的数据
--(NSPredicate *)predicateSampleTypeByWholeDay
+///-------------------------
+#pragma mark - 身高
+///-------------------------
+-(void)readHeightFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion  ///读取身高数据
+{
+    HKSampleType *heightType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    
+    NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+    
+    NSPredicate *predicate = [self predicateSampleByLatestData];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:heightType predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        
+        double height = [[[NSString stringWithFormat:@"%@",results.firstObject] componentsSeparatedByString:@" "][0] doubleValue];
+
+        completion(height,error);
+    }];
+    
+    [self.store executeQuery:query];
+}
+-(void)writeHeightToHealthStoreWithHeight:(double)Height completion:(void(^)(BOOL response))completion  ///写入身高数据
+{
+    HKQuantityType *type = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    
+    HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit meterUnit] doubleValue:Height];
+    
+    HKQuantitySample *sample = [HKQuantitySample quantitySampleWithType:type quantity:quantity startDate:[NSDate date] endDate:[NSDate date] metadata:nil];
+    
+    [self.store saveObject:sample withCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            completion(YES);
+        }else {
+            completion(NO);
+        }
+    }];
+}
+
+///-------------------------
+#pragma mark - 体重
+///-------------------------
+-(void)readBodyMassFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion   ///读取体重
+{
+    HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];
+    
+    NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+    
+    NSPredicate *predicate = [self predicateSampleByLatestData];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:type predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        
+        double bodyMass = [[[NSString stringWithFormat:@"%@",results.firstObject] componentsSeparatedByString:@" "][0] doubleValue];
+        
+        completion(bodyMass,error);
+    }];
+    
+    [self.store executeQuery:query];
+}
+-(void)writeBodyMassToHealthStoreWithBodyMass:(double)bodyMass completion:(void(^)(BOOL response))completion    ///写入体重
+{
+    HKQuantityType *type = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];
+    
+    HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit gramUnit] doubleValue:bodyMass * 1000];
+    
+    HKQuantitySample *sample = [HKQuantitySample quantitySampleWithType:type quantity:quantity startDate:[NSDate date] endDate:[NSDate date] metadata:nil];
+    
+    [self.store saveObject:sample withCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            completion(YES);
+        }else {
+            completion(NO);
+        }
+    }];
+}
+
+///-------------------------
+#pragma mark - 身体质量指数
+///-------------------------
+-(void)readBodyMassIndexFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion  ///读取身体质量指数
+{
+    HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];
+    
+    NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+    
+    NSPredicate *predicate = [self predicateSampleByLatestData];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:type predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        
+        double bodyMassIndex = [[[NSString stringWithFormat:@"%@",results.firstObject] componentsSeparatedByString:@" "][0] doubleValue];
+        
+        completion(bodyMassIndex,error);
+    }];
+    
+    [self.store executeQuery:query];
+}
+-(void)writeBodyMassIndexToHealthStoreWithBodyMassIndex:(double)bodyMassIndex completion:(void(^)(BOOL response))completion  ///写入身体质量指数
+{
+    HKQuantityType *type = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];
+    
+    HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit countUnit] doubleValue:bodyMassIndex];
+    
+    HKQuantitySample *sample = [HKQuantitySample quantitySampleWithType:type quantity:quantity startDate:[NSDate date] endDate:[NSDate date] metadata:nil];
+    
+    [self.store saveObject:sample withCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            completion(YES);
+        }else {
+            completion(NO);
+        }
+    }];
+}
+
+///-------------------------
+#pragma mark - 步行&跑步距离
+///-------------------------
+-(void)readDistanceWalkingRunningFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion     ///读取步行&跑步距离
+{
+    HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    
+    NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+    
+    NSPredicate *predicate = [self predicateSampleByToday];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:type predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+        
+        double distanceWalkingRunning = 0;
+        for (HKQuantitySample *sample in results) {
+            distanceWalkingRunning += [[[NSString stringWithFormat:@"%@",sample.quantity] componentsSeparatedByString:@" "][0] doubleValue];
+        }
+        
+        completion(distanceWalkingRunning / 1000,error);
+    }];
+    
+    [self.store executeQuery:query];
+}
+-(void)writeDistanceWalkingRunningToHealthStoreWithBodyMassIndex:(double)distanceWalkingRunning completion:(void(^)(BOOL response))completion   ///写入步行&跑步距离
+{
+    HKQuantityType *type = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    
+    HKQuantity *quantity = [HKQuantity quantityWithUnit:[HKUnit meterUnit] doubleValue:distanceWalkingRunning * 1000];
+    
+    HKQuantitySample *sample = [HKQuantitySample quantitySampleWithType:type quantity:quantity startDate:[NSDate date] endDate:[NSDate date] metadata:nil];
+    
+    [self.store saveObject:sample withCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            completion(YES);
+        }else {
+            completion(NO);
+        }
+    }];
+}
+
+///-------------------------
+#pragma mark - 以爬楼层
+///-------------------------
+-(void)readFlightsClimbedFromHealthStoreWithCompletion:(void(^)(NSInteger value,NSError *error))completion  ///读取以爬楼层
+{
+    HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];
+    
+    NSSortDescriptor *startSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    NSSortDescriptor *endSort = [NSSortDescriptor sortDescriptorWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+    
+    NSPredicate *predicate = [self predicateSampleByToday];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:type predicate:predicate limit:0 sortDescriptors:@[startSort,endSort] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+
+        double flightsClimbed = 0;
+        for (HKQuantitySample *sample in results) {
+            flightsClimbed += [[[NSString stringWithFormat:@"%@",sample.quantity] componentsSeparatedByString:@" "][0] doubleValue];
+        }
+        
+        completion(flightsClimbed,error);
+    }];
+    
+    [self.store executeQuery:query];
+}
+-(void)writeFlightsClimbedToHealthStoreWithBodyMassIndex:(NSInteger)flightsClimbed completion:(void(^)(BOOL response))completion    ///写入以爬楼层
+{
+    
+}
+
+
+///-------------------------
+#pragma mark - 谓词样本
+///-------------------------
+-(NSPredicate *)predicateSampleByToday
 {
     NSCalendar *calendar = [NSCalendar currentCalendar];
     
@@ -154,157 +372,170 @@ static skoal *_instance = nil;
     
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:(HKQueryOptionNone)];
     
-    return predicate;
+    return predicate;   //predicate sample is the day data(谓词样本为当天数据)
 }
-#pragma mark - 查询一个时间段
--(NSPredicate *)predicateSampleWithStartDate:(NSString *)startDate endDate:(NSString *)endDate
+-(NSPredicate *)predicateSampleByLatestData
+{
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    
+    NSDate *dateNow = [NSDate date];
+    
+    NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:dateNow];
+    [components setHour:0];
+    [components setMinute:0];
+    [components setSecond:0];
+    
+    NSDate *startDate = [calendar dateFromComponents:components];
+    NSDate *endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
+    
+    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:0 endDate:endDate options:(HKQueryOptionNone)];
+    
+    return predicate;   //predicate sample is the latest data(谓词样本为最新数据)
+}
+-(NSPredicate *)predicateSampleByPeriodOfTimeWithStartTime:(NSString *)startTime endTime:(NSString *)endTime
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"yyyy-MM-dd HH:mm"];
     formatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     
-    NSDate *newStartDate = [formatter dateFromString:startDate];
-    NSDate *newEndDate = [formatter dateFromString:endDate];
-    
-    DLog(@"%@",newStartDate);
-    DLog(@"%@",newEndDate);
-    DLog(@"%@",startDate);
+    NSDate *newStartDate = [formatter dateFromString:startTime];
+    NSDate *newEndDate = [formatter dateFromString:endTime];    
     
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:newStartDate endDate:newEndDate options:(HKQueryOptionNone)];
     
-    return predicate;
+    return predicate;   //predicate sample is time period data(谓词样本为时间段数据)
 }
 
-#pragma mark - 读权限集合
--(NSSet *)readObjectTypes
+///-------------------------
+#pragma mark - 权限集合
+///-------------------------
+-(NSSet *)readObjectTypes   ///读权限集合
 {
-    //身高
-    HKQuantityType *Height = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    HKQuantityType *Height = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];    //身高
     
-    //体重
-    HKQuantityType *BodyMass = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];
+    HKQuantityType *BodyMass = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];   //体重
     
-    //身体质量指数
-    HKQuantityType *BodyMassIndex= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];
+    HKQuantityType *BodyMassIndex= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];   //身体质量指数
     
-    //步数
-    HKQuantityType *StepCount = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    HKQuantityType *StepCount = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];   //步数
     
-    //步行 + 跑步距离
-    HKQuantityType *DistanceWalkingRunning= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    HKQuantityType *DistanceWalkingRunning= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];   //步行 + 跑步距离
     
-    //已爬楼层
-    HKObjectType *FlightsClimbed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];
+    HKObjectType *FlightsClimbed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];   //已爬楼层
     
-    //呼吸速率
-    HKQuantityType *RespiratoryRate = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    HKQuantityType *RespiratoryRate = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];   //呼吸速率
     
-    //膳食能量消耗
-    HKQuantityType *DietaryEnergyConsumed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryEnergyConsumed];
+    HKQuantityType *DietaryEnergyConsumed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryEnergyConsumed];   //膳食能量消耗
     
-    //血氧饱和度
-    HKQuantityType *OxygenSaturation = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierOxygenSaturation];
+    HKQuantityType *OxygenSaturation = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierOxygenSaturation];   //血氧饱和度
     
-    //体温
-    HKQuantityType *BodyTemperature = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    HKQuantityType *BodyTemperature = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];   //体温
     
-    //血糖
-    HKQuantityType *BloodGlucose = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodGlucose];
+    HKQuantityType *BloodGlucose = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodGlucose];   //血糖
     
-    //血压收缩压
-    HKQuantityType *BloodPressureSystolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureSystolic];
+    HKQuantityType *BloodPressureSystolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureSystolic];   //血压收缩压
     
-    //血压舒张压
-    HKQuantityType *BloodPressureDiastolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureDiastolic];
+    HKQuantityType *BloodPressureDiastolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureDiastolic];   //血压舒张压
     
-    //站立小时
-    HKObjectType *StandHour = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierAppleStandHour];
+    HKObjectType *StandHour = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierAppleStandHour];   //站立小时
     
-    //健身记录
-    HKObjectType *ActivitySummary = [HKObjectType activitySummaryType];
+    HKObjectType *ActivitySummary = [HKObjectType activitySummaryType];   //健身记录
     
-    //性别
-    HKObjectType *BiologicalSex = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierBiologicalSex];
+    HKObjectType *BiologicalSex = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierBiologicalSex];   //性别
     
-    //出生日期
-    HKObjectType *DateOfBirth = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierDateOfBirth];
+    HKObjectType *DateOfBirth = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierDateOfBirth];   //出生日期
     
-    //血型
-    HKObjectType *BloodType = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierBloodType];
+    HKObjectType *BloodType = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierBloodType];   //血型
+    
+    HKObjectType *FitzpatrickSkin = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierFitzpatrickSkinType];   //日光反应型皮肤类型
+   
+    HKObjectType *SleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];    //睡眠分析
+    
+    HKObjectType *MenstrualFlow = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierMenstrualFlow];   //月经
+    
+    HKObjectType *IntermenstrualBleeding = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierIntermenstrualBleeding];   //点滴出血
+    
+    HKObjectType *SexualActivity = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSexualActivity];   //性行为
 
-    //日光反应型皮肤类型
-    HKObjectType *FitzpatrickSkin = [HKObjectType characteristicTypeForIdentifier:HKCharacteristicTypeIdentifierFitzpatrickSkinType];
-    
-    //睡眠分析
-    HKObjectType *SleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
-    
-    //月经
-    HKObjectType *MenstrualFlow = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierMenstrualFlow];
-
-    //点滴出血
-    HKObjectType *IntermenstrualBleeding = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierIntermenstrualBleeding];
-    
-    //性行为
-    HKObjectType *SexualActivity = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSexualActivity];
-
-    return [NSSet setWithObjects:Height,BodyMass,BodyMassIndex,StepCount,DistanceWalkingRunning,FlightsClimbed,RespiratoryRate,DietaryEnergyConsumed,OxygenSaturation,BodyTemperature,BloodGlucose,BloodPressureSystolic,BloodPressureDiastolic,StandHour,ActivitySummary,BiologicalSex,DateOfBirth,BloodType,FitzpatrickSkin,SleepAnalysis,MenstrualFlow,IntermenstrualBleeding,SexualActivity, nil];
+    return [NSSet setWithObjects:Height,
+                                   BodyMass,
+                                   BodyMassIndex,
+                                   StepCount,
+                                   DistanceWalkingRunning,
+                                   FlightsClimbed,
+                                   RespiratoryRate,
+                                   DietaryEnergyConsumed,
+                                   OxygenSaturation,
+                                   BodyTemperature,
+                                   BloodGlucose,
+                                   BloodPressureSystolic,
+                                   BloodPressureDiastolic,
+                                   StandHour,
+                                   ActivitySummary,
+                                   BiologicalSex,
+                                   DateOfBirth,
+                                   BloodType,
+                                   FitzpatrickSkin,
+                                   SleepAnalysis,
+                                   MenstrualFlow,
+                                   IntermenstrualBleeding,
+                                   SexualActivity,
+                                   nil];
 }
-
-#pragma mark - 写权限集合
--(NSSet *)writeObjectTypes
+-(NSSet *)writeObjectTypes  ///写权限集合
 {
-    //身高
-    HKQuantityType *Height = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];
+    HKQuantityType *Height = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeight];   //身高
     
-    //体重
-    HKQuantityType *BodyMass = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];
+    HKQuantityType *BodyMass = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMass];   //体重
     
-    //身体质量指数
-    HKQuantityType *BodyMassIndex= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];
+    HKQuantityType *BodyMassIndex= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBodyMassIndex];   //身体质量指数
     
-    //步数
-    HKQuantityType *StepCount = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    HKQuantityType *StepCount = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];   //步数
     
-    //步行 + 跑步距离
-    HKQuantityType *DistanceWalkingRunning= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    HKQuantityType *DistanceWalkingRunning= [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];   //步行 + 跑步距离
     
-    //已爬楼层
-    HKObjectType *FlightsClimbed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];
+    HKObjectType *FlightsClimbed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierFlightsClimbed];   //已爬楼层
+   
+    HKQuantityType *RespiratoryRate = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];   //呼吸速率
     
-    //呼吸速率
-    HKQuantityType *RespiratoryRate = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    HKQuantityType *DietaryEnergyConsumed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryEnergyConsumed];   //膳食能量消耗
     
-    //膳食能量消耗
-    HKQuantityType *DietaryEnergyConsumed = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDietaryEnergyConsumed];
+    HKQuantityType *OxygenSaturation = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierOxygenSaturation];   //血氧饱和度
     
-    //血氧饱和度
-    HKQuantityType *OxygenSaturation = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierOxygenSaturation];
+    HKQuantityType *BodyTemperature = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];   //体温
     
-    //体温
-    HKQuantityType *BodyTemperature = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierRespiratoryRate];
+    HKQuantityType *BloodGlucose = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodGlucose];   //血糖
     
-    //血糖
-    HKQuantityType *BloodGlucose = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodGlucose];
+    HKQuantityType *BloodPressureSystolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureSystolic];   //血压收缩压
     
-    //血压收缩压
-    HKQuantityType *BloodPressureSystolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureSystolic];
+    HKQuantityType *BloodPressureDiastolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureDiastolic];   //血压舒张压
     
-    //血压舒张压
-    HKQuantityType *BloodPressureDiastolic = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierBloodPressureDiastolic];
+    HKObjectType *SleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];   //睡眠分析
     
-    //睡眠分析
-    HKObjectType *SleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    HKObjectType *MenstrualFlow = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierMenstrualFlow];   //月经
     
-    //月经
-    HKObjectType *MenstrualFlow = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierMenstrualFlow];
+    HKObjectType *IntermenstrualBleeding = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierIntermenstrualBleeding];   //点滴出血
     
-    //点滴出血
-    HKObjectType *IntermenstrualBleeding = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierIntermenstrualBleeding];
+    HKObjectType *SexualActivity = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSexualActivity];   //性行为
     
-    //性行为
-    HKObjectType *SexualActivity = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSexualActivity];
-    
-    return [NSSet setWithObjects:Height,BodyMass,BodyMassIndex,StepCount,DistanceWalkingRunning,FlightsClimbed,RespiratoryRate,DietaryEnergyConsumed,OxygenSaturation,BodyTemperature,BloodGlucose,BloodPressureSystolic,BloodPressureDiastolic,SleepAnalysis,MenstrualFlow,IntermenstrualBleeding,SexualActivity, nil];
+    return [NSSet setWithObjects:Height,
+                                   BodyMass,
+                                   BodyMassIndex,
+                                   StepCount,
+                                   DistanceWalkingRunning,
+                                   FlightsClimbed,
+                                   RespiratoryRate,
+                                   DietaryEnergyConsumed,
+                                   OxygenSaturation,
+                                   BodyTemperature,
+                                   BloodGlucose,
+                                   BloodPressureSystolic,
+                                   BloodPressureDiastolic,
+                                   SleepAnalysis,
+                                   MenstrualFlow,
+                                   IntermenstrualBleeding,
+                                   SexualActivity,
+                                    nil];
 }
 
 @end
