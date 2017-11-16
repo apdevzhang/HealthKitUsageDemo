@@ -33,6 +33,7 @@
 #define DLog(FORMAT, ...) nil
 #endif
 
+
 typedef NS_ENUM(NSUInteger,HealthStorePermissionResponse) {
     HealthStorePermissionResponseError = 0,
     HealthStorePermissionResponseSuccess
@@ -41,104 +42,155 @@ typedef NS_ENUM(NSUInteger,HealthStorePermissionResponse) {
 typedef void (^HealthStorePermissionResponseBlock)(HealthStorePermissionResponse permissionResponse);
 
 @interface skoal : NSObject
+@property (nonatomic,copy) HealthStorePermissionResponseBlock permissionResponseBlock;
+@property (nonatomic,strong) HKHealthStore *store;
 
 +(instancetype)sharedInstance;
 
-@property (nonatomic,copy) HealthStorePermissionResponseBlock permissionResponseBlock;
-
-@property (nonatomic,strong) HKHealthStore *store;
-
 ///-------------------------
-#pragma mark - 获取权限
+#pragma mark - AccessPermission(获取权限)
 ///-------------------------
-/**!
- * @brief 获取权限
- */
 -(void)requestHealthPermissionWithBlock:(HealthStorePermissionResponseBlock)block;
 
+
 ///-------------------------
-#pragma mark - 步数
+#pragma mark - StepCount(步数)
 ///-------------------------
-/**!
- * @brief 读取当天步数
- */
 -(void)readStepCountFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
-
-/**!
- * @brief 读取一个时间段步数
- */
 -(void)readStepCountFromHealthStoreWithStartTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(double value,NSError *error))completion;
-
-/**!
- * @brief 写入当天步数
- */
--(void)writeStepCountToHealthStoreWithStepCount:(double)setpCount completion:(void(^)(BOOL response))completion;
-
-/**!
- * @brief 写入指定时间段步数
- */
--(void)writeStepCountToHealthStoreWithStepCount:(double)setpCount startTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(BOOL response))completion;
+-(void)writeStepCountToHealthStoreWithUnit:(double)setpCount completion:(void(^)(BOOL response))completion;
+-(void)writeStepCountToHealthStoreWithUnit:(double)setpCount startTime:(NSString *)startTime endTime:(NSString *)endTime completion:(void(^)(BOOL response))completion;
 
 
 ///-------------------------
-#pragma mark - 身高
+#pragma mark - Height(身高)
 ///-------------------------
-/**!
- * @brief 读取身高(cm)
- */
 -(void)readHeightFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
-/**!
- * @brief 写入身高(cm)
- */
--(void)writeHeightToHealthStoreWithHeight:(double)Height completion:(void(^)(BOOL response))completion;
+-(void)writeHeightToHealthStoreWithUnit:(double)Height completion:(void(^)(BOOL response))completion;
+
 
 ///-------------------------
-#pragma mark - 体重
+#pragma mark - BodyMass(体重)
 ///-------------------------
-/**!
- * @brief 读取体重(KG)
- */
--(void)readBodyMassFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
-/**!
- * @brief 写入体重(KG)
- */
--(void)writeBodyMassToHealthStoreWithBodyMass:(double)bodyMass completion:(void(^)(BOOL response))completion;
+-(void)readBodyMassFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;    /// kg
+-(void)writeBodyMassToHealthStoreWithUnit:(double)bodyMass completion:(void(^)(BOOL response))completion;
+
 
 ///-------------------------
-#pragma mark - 身体质量指数
+#pragma mark - BodyMassIndex(身体质量指数)
 ///-------------------------
-/**!
- * @brief 读取身体质量指数
- */
 -(void)readBodyMassIndexFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
-/**!
- * @brief 写入身体质量指数
- */
--(void)writeBodyMassIndexToHealthStoreWithBodyMassIndex:(double)bodyMassIndex completion:(void(^)(BOOL response))completion;
+-(void)writeBodyMassIndexToHealthStoreWithUnit:(double)bodyMassIndex completion:(void(^)(BOOL response))completion;
+
 
 ///-------------------------
-#pragma mark - 步行&跑步距离
+#pragma mark - DistanceWalkingRunning(步行+跑步距离)
 ///-------------------------
-/**!
- * @brief 读取步行&跑步距离(KM)
- */
 -(void)readDistanceWalkingRunningFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
-/**!
- * @brief 写入步行&跑步距离(KM)
- */
--(void)writeDistanceWalkingRunningToHealthStoreWithBodyMassIndex:(double)distanceWalkingRunning completion:(void(^)(BOOL response))completion;
+-(void)writeDistanceWalkingRunningToHealthStoreWithUnit:(double)distanceWalkingRunning completion:(void(^)(BOOL response))completion;
 
 
 ///-------------------------
-#pragma mark - 以爬楼层
+#pragma mark - FlightsClimbed(以爬楼层)
 ///-------------------------
-/**!
- * @brief 读取以爬楼层
- */
 -(void)readFlightsClimbedFromHealthStoreWithCompletion:(void(^)(NSInteger value,NSError *error))completion;
-/**!
- * @brief 写入以爬楼层
- */
--(void)writeFlightsClimbedToHealthStoreWithBodyMassIndex:(NSInteger)flightsClimbed completion:(void(^)(BOOL response))completion;
+-(void)writeFlightsClimbedToHealthStoreWithUnit:(NSInteger)flightsClimbed completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - RespiratoryRate(呼吸速率)
+///-------------------------
+-(void)readRespiratoryRateFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+-(void)writeRespiratoryRateToHealthStoreWithUnit:(double)respiratoryRate completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - DietaryEnergyConsumed(膳食能量消耗)
+///-------------------------
+-(void)readDietaryEnergyConsumedFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+-(void)writeDietaryEnergyConsumedToHealthStoreWithUnit:(double)dietaryEnergyConsumed completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - OxygenSaturation(血氧饱和度)
+///-------------------------
+-(void)readOxygenSaturationFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - BodyTemperature(体温)
+///-------------------------
+-(void)readBodyTemperatureFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+-(void)writeBodyTemperatureToHealthStoreWithUnit:(double)bodyTemperature completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - BloodGlucose(血糖)
+///-------------------------
+-(void)readBloodGlucoseFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;    /// mg/dl
+-(void)writeBloodGlucoseToHealthStoreWithUnit:(double)bloodGlucose completion:(void(^)(BOOL response))completion;
+
+///-------------------------
+#pragma mark - BloodPressure(血压)
+///-------------------------
+-(void)readBloodPressureSystolicFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+-(void)writeBloodPressureSystolicToHealthStoreWithUnit:(double)bloodPressureSystolic completion:(void(^)(BOOL response))completion;
+-(void)readBloodPressureDiastolicFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+-(void)writeBloodPressureDiastolicToHealthStoreWithUnit:(double)bloodPressureDiastolic completion:(void(^)(BOOL response))completion;
+
+
+///-------------------------
+#pragma mark - StandHour(站立小时)
+///-------------------------
+-(void)readStandHourFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - BiologicalSex(性别)
+///-------------------------
+-(void)readBiologicalSexFromHealthStoreWithCompletion:(void(^)(NSString *sex,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - DateOfBirth(出生日期)
+///-------------------------
+-(void)readDateOfBirthFromHealthStoreWithCompletion:(void(^)(NSDate *date,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - BloodType(血型)
+///-------------------------
+-(void)readBloodTypeFromHealthStoreWithCompletion:(void(^)(NSString *bloodType,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - FitzpatrickSkin(日光反应型皮肤类型)
+///-------------------------
+-(void)readFitzpatrickSkinFromHealthStoreWithCompletion:(void(^)(NSString *skinType,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - SleepAnalysis(睡眠分析)
+///-------------------------
+-(void)readSleepAnalysisFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - MenstrualFlow(月经)
+///-------------------------
+-(void)readMenstrualFlowFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - IntermenstrualBleeding(点滴出血)
+///-------------------------
+-(void)readIntermenstrualBleedingFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
+
+///-------------------------
+#pragma mark - SexualActivity(性行为)
+///-------------------------
+-(void)readSexualActivityFromHealthStoreWithCompletion:(void(^)(double value,NSError *error))completion;
+
 
 @end
