@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
   s.author             = { "GREENBANYAN" => "@greenbanyan@163.com" }
   s.platform     = :ios,'8.0'
-  s.source       = { :git => "https://github.com/GREENBANYAN/skoal", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/GREENBANYAN/skoal.git", :tag => "#{s.version}" }
   s.source_files  = "skoal/*.{h,m}"
   s.requires_arc = true
 end
