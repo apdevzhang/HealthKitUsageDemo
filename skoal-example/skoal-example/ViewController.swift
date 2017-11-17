@@ -267,7 +267,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
                     print("\(value)\n\(error.debugDescription)")
                 })
             } else if indexPath.row == 1 {
-                skoal.sharedInstance().writeHeightToHealthStore(withUnit: 155, completion: { (_ response: Bool) in
+                skoal.sharedInstance().writeHeightToHealthStore(withUnit: 1.80, completion: { (_ response: Bool) in
                     print(response)
                 })
             }
