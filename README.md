@@ -70,8 +70,10 @@
 			}
 ```
 <a name='index2'></a>
+
 func preview1  | func preview2
 ---------------|---------------
-![screenshot/func1.png](screenshot/func1.png) | ![screenshot/func2.png](screenshot/func2.png)  
+![screenshot/func1.png](screenshot/func1.png)  |  ![screenshot/func2.png](screenshot/func2.png)  
+
 
 [1]: https://github.com/GREENBANYAN/skoal/blob/master/LICENSE "MIT License"
