@@ -2,7 +2,7 @@
 //  skoal_exampleUITests.swift
 //  skoal-exampleUITests
 //
-//  Created by BANYAN on 2017/11/12.
+//  Created by BANYAN on 2017/11/17.
 //  Copyright © 2017年 skoal. All rights reserved.
 //
 
