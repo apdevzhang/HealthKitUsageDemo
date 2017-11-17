@@ -1,9 +1,9 @@
 Pod::Spec.new do |s|
   s.name         = "skoal"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.summary      = "both read and write function for variety health-related property from your iPhone based on HealthKit"
   s.description  = <<-DESC
-  you can use 'skoal' to ead or write variety health-related property to your iPhone.
+  you can use 'skoal' to read or write variety health-related property from your iPhone based on HealthKit.
                    DESC
   s.homepage     = "https://github.com/GREENBANYAN/skoal"
   s.license      = "MIT"
