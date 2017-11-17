@@ -49,7 +49,7 @@
 - [Start the project to see the example](./skoal-example)
 
 <a name='index1'></a>
-
+- Objective-C
 ``` 
       [[skoal sharedInstance]requestHealthPermissionWithBlock:^(HealthStorePermissionResponse permissionResponse) {
             if (permissionResponse == HealthStorePermissionResponseError) {
@@ -59,7 +59,7 @@
             }
         }];
 ```
-
+- Swift
 ```
              skoal.sharedInstance().requestHealthPermission { (response: HealthStorePermissionResponse) in
                  if response == HealthStorePermissionResponse.error {
