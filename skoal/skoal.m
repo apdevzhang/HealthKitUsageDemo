@@ -73,7 +73,7 @@ static skoal *_instance = nil;
             }];
         }
     }else{
-        DLog(@"skoal:HealthyKit暂不支持iOS8以下系统,请更新你的系统。");
+        DLog(@"skoal:HealthKit暂不支持iOS8以下系统,请更新你的系统。");
     }
 }
 
