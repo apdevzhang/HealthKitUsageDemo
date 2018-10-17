@@ -37,12 +37,6 @@
 ## License
 `skoal`use [__MIT license__][1]	
 
-## Installation with cocoapods
-<pre>
- pod 'skoal'
-</pre>
-![screenshot/cocoapods.png](screenshot/cocoapods.png)
-
 ## Usage
 - [You should get HealthKit privacy permission before you use 'skoal'](#index1)
 - [See the function by preview below](#index2)
